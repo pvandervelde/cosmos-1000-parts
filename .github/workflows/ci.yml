@@ -1,0 +1,29 @@
+name: Build CAD model
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Sync environment
+        run: uv sync
+
+      - name: Build bracket model
+        run: uv run fan-bracket-build
+
+      - name: Upload STEP files
+        uses: actions/upload-artifact@v4
+        with:
+          name: fan-brackets-${{ matrix.os }}
+          path: outputs/*.step
