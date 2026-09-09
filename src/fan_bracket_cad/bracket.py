@@ -2,8 +2,8 @@
 Parametric 140mm x3 fan bracket for a case front panel cutout.
 
 Coordinate convention:
-    X - across the 440mm opening (horizontal)
-    Y - vertical
+    X - across the 150mm opening (horizontal), pointing to the right when looking at the case front.
+    Y - vertical across the 440mm cutout (vertical)
     Z - depth. Z=0 is the OUTER (front) face of the case panel.
         +Z points OUT of the case (toward the viewer).
         -Z points INTO the case interior.
@@ -29,31 +29,35 @@ Adjust the PARAMETERS block and re-run.
 from pathlib import Path
 
 from build123d import *
+from ocp_vscode import show
+
+from cad_utils import export_3mf
 
 # Repo-relative output dir - works the same on Windows and Linux
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "outputs"
 
 # ---------------- PARAMETERS ----------------
-opening_width = 440.0        # total case cutout width (X)
-opening_height = 150.0       # case cutout height (Y)
+opening_width = 150.0        # total case cutout width (X)
+opening_height = 440.0       # case cutout height (Y)
 margin = 10.0                # extra mounting strip above & below opening
 n_fans = 3
 
 fan_size = 140.0
 fan_hole_spacing = 124.5     # Noctua NF-A14x25 G2 square-frame spacing
 fan_hole_dia = 4.5           # M4 clearance
+fan_recess_depth = 2.0       # depth of fan frame recess into bracket
 
-bracket_thickness = 8.0      # max allowed front-side protrusion
+bracket_thickness = 6.0      # bracket thickness
 vent_dia = fan_size - 10.0   # 130mm airflow opening, 5mm rim inside fan frame
 
 case_screw_dia = 4.5
-case_screw_inset_x = 15.0    # inset from bracket left/right edges
+case_screw_inset_x = 5.0     # inset from bracket left/right edges
 plate_corner_fillet = 3.0
 
 # ---------------- DERIVED ----------------
-bracket_pitch = opening_width / n_fans      # 146.667mm center-to-center
+bracket_height = opening_height / n_fans
+bracket_pitch = opening_width  + 2 * margin
 bracket_width = bracket_pitch
-bracket_height = opening_height + 2 * margin  # 170mm
 
 top_margin_y = bracket_height / 2 - margin / 2
 bottom_margin_y = -bracket_height / 2 + margin / 2
@@ -83,6 +87,12 @@ def make_bracket() -> Part:
 
         front_face = bp.faces().sort_by(Axis.Z)[-1]
 
+        # fan recess (shallow pocket)
+        with BuildSketch(front_face) as fan_recess_sk:
+            Rectangle(fan_size, fan_size)
+            fillet(fan_recess_sk.vertices(), radius=plate_corner_fillet)
+        extrude(fan_recess_sk.sketch, amount=-fan_recess_depth, mode=Mode.SUBTRACT)
+
         # Airflow vent (through hole)
         with BuildSketch(front_face) as vent_sk:
             Circle(vent_dia / 2)
@@ -107,8 +117,8 @@ def make_assembly() -> Compound:
     bracket = make_bracket()
     parts = []
     for i in range(n_fans):
-        x = -opening_width / 2 + bracket_pitch * (i + 0.5)
-        parts.append(bracket.moved(Location((x, 0, 0))))
+        y = -opening_width / 2 + bracket_pitch * (i + 0.5)
+        parts.append(bracket.moved(Location((0, y, 0))))
     return Compound(children=parts)
 
 
@@ -124,9 +134,10 @@ def main() -> None:
     print(f"Assembly bounding box: {assembly.bounding_box()}")
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    export_step(assembly, str(OUTPUT_DIR / "fan_brackets_assembly.step"))
-    export_step(single, str(OUTPUT_DIR / "fan_bracket_single.step"))
-    print(f"Exported STEP files to {OUTPUT_DIR}")
+    export_3mf(assembly, str(OUTPUT_DIR / "fan_brackets_assembly.3mf"))
+    export_3mf(single, str(OUTPUT_DIR / "fan_bracket_single.3mf"))
+    print(f"Exported 3MF files to {OUTPUT_DIR}")
+    show(assembly)
 
 
 if __name__ == "__main__":
