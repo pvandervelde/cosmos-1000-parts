@@ -37,10 +37,12 @@ from cad_utils import export_3mf
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "outputs"
 
 # ---------------- PARAMETERS ----------------
+internal_hole_fdm_correction = 0.1  # correction for FDM printing, in mm
+
 opening_width = 150.0        # total case cutout width (X)
 opening_height = 440.0       # case cutout height (Y)
 
-horizontal_margin = 10.0     # extra mounting strip left & right of the opening
+horizontal_margin = 13.0     # extra mounting strip left & right of the opening
 vertical_margin = 5.0        # Extra mounting strip above & below the fan
 bottom_margin = 33.0         # extra mounting strip above & below opening
 top_margin = 14.0            # extra mounting strip above & below opening
@@ -68,9 +70,12 @@ bracket_pitch = opening_width  + 2 * horizontal_margin
 bracket_width = bracket_pitch
 
 glue_strip_width = bracket_width - 2 * horizontal_margin
+glue_strip_cut_out_width = glue_strip_width + 2 * internal_hole_fdm_correction
 
 top_case_hole_center_y = bracket_height / 2 - 3 * vertical_margin
 bottom_case_hole_center_y = -bracket_height / 2 + 3 * vertical_margin
+
+
 
 fan_hole_offsets = [
     (fan_hole_spacing / 2, fan_hole_spacing / 2),
@@ -86,11 +91,11 @@ case_hole_offsets = [
     (-(bracket_width / 2 - case_screw_inset_x), bottom_case_hole_center_y),
 ]
 
-glue_strip_offset = [
-    (0, bracket_height / 2 - vertical_margin / 2.0),
-    (0, -bracket_height / 2 + vertical_margin / 2.0)
-]
-
+def glue_strip_offset(panel_height: float) -> list[tuple[float, float]]:
+    return [
+        (0, panel_height / 2 - vertical_margin / 2.0),
+        (0, -panel_height / 2 + vertical_margin / 2.0)
+    ]
 
 def make_bracket() -> Part:
     """One bracket: plate from Z=0 to Z=+bracket_thickness."""
@@ -104,8 +109,8 @@ def make_bracket() -> Part:
 
         # glue strip
         with BuildSketch(front_face) as glue_strip_sk:
-            with Locations(glue_strip_offset):
-                Rectangle(glue_strip_width, vertical_margin)
+            with Locations(glue_strip_offset(bracket_height)):
+                Rectangle(glue_strip_cut_out_width, vertical_margin)
                 fillet(sk.vertices(), radius=plate_corner_fillet)
         extrude(glue_strip_sk.sketch, amount=-glue_strip_thickness, mode=Mode.SUBTRACT)
 
@@ -126,29 +131,23 @@ def make_bracket() -> Part:
                 Circle(fan_hole_dia / 2)
         extrude(fan_holes_sk.sketch, amount=-bracket_thickness, mode=Mode.SUBTRACT)
 
-        # # Case attachment holes (through the top/bottom margin strips)
-        # with BuildSketch(front_face) as case_holes_sk:
-        #     with Locations(case_hole_offsets):
-        #         Circle(case_screw_dia / 2)
-        # extrude(case_holes_sk.sketch, amount=-bracket_thickness, mode=Mode.SUBTRACT)
-
     return bp.part
 
-def get_case_bracket_holes() -> list[tuple[float, float]]:
-    bottom_clip_left = (-37.0, -1.5 * bracket_height - bottom_bracket_height)
-    bottom_clip_right = (37.0, -1.5 * bracket_height - bottom_bracket_height)
+def get_case_bracket_holes() -> list[tuple[float, float, float]]:
+    bottom_clip_left = (-37.0, -1.5 * bracket_height - bottom_bracket_height, 5.0)
+    bottom_clip_right = (37.0, -1.5 * bracket_height - bottom_bracket_height, 5.0)
 
-    bottom_hole_left = (-38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0)
-    bottom_hole_right = (38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0)
+    bottom_hole_left = (-38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0, 1.5)
+    bottom_hole_right = (38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0, 1.5)
 
-    side_hole_1_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0)
-    side_hole_1_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0)
+    side_hole_1_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
+    side_hole_1_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
 
-    side_hole_2_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 303.0)
-    side_hole_2_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 303.0)
+    side_hole_2_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
+    side_hole_2_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
 
-    side_hole_3_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 430.0)
-    side_hole_3_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 430.0)
+    side_hole_3_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
+    side_hole_3_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
 
     return [
         bottom_clip_left,
@@ -177,14 +176,23 @@ def make_case_bottom_bracket() -> Part:
             Rectangle(case_width, bottom_bracket_height)
             fillet(sk.vertices(), radius=plate_corner_fillet)
         extrude(sk.sketch, amount=bracket_thickness)
+
+        front_face = bp.faces().sort_by(Axis.Z)[-1]
+
+        with BuildSketch(front_face) as glue_strip_sk:
+            locations = glue_strip_offset(bottom_bracket_height)
+            with Locations(locations[0]):
+                Rectangle(glue_strip_cut_out_width, vertical_margin)
+                fillet(sk.vertices(), radius=plate_corner_fillet)
+        extrude(glue_strip_sk.sketch, amount=-glue_strip_thickness, mode=Mode.SUBTRACT)
     return bp.part
 
-def make_hole(location: tuple[float, float, float]) -> Part:
+def make_hole(location: tuple[float, float, float], radius: float) -> Part:
     with BuildPart() as bp:
         with BuildSketch() as sk:
             with Locations(location):
-                Circle(8.0 / 2)
-        extrude(sk.sketch, amount=-bracket_thickness, mode=Mode.ADD)
+                Circle(radius + 0.5 * internal_hole_fdm_correction)
+        extrude(sk.sketch, amount=bracket_thickness, mode=Mode.ADD)
     return bp.part
 
 def make_assembly() -> list[Part]:
@@ -192,14 +200,17 @@ def make_assembly() -> list[Part]:
     parts = []
 
     for i in range(n_fans):
-        y = -opening_height / 2 + bracket_height * (i + 0.5)
+        y = -opening_height / 2 -vertical_margin + bracket_height * (i + 0.5)
         parts.append(bracket.moved(Location((0, y, 0))))
 
     for i in range(n_fans - 1):
-        y = -opening_height / 2 + bracket_height * (i + 1)
+        y = -opening_height / 2 - vertical_margin + bracket_height * (i + 1)
         parts.append(make_glue_strip().moved(Location((0, y, bracket_thickness - glue_strip_thickness))))
 
     parts.append(make_case_bottom_bracket().moved(Location((0, -1.5 * bracket_height - 0.5 * bottom_bracket_height, 0))))
+
+    y = -1.5 * bracket_height
+    parts.append(make_glue_strip().moved(Location((0, y, bracket_thickness - glue_strip_thickness))))
 
     #assembly = Compound(children=parts)
 
@@ -207,11 +218,11 @@ def make_assembly() -> list[Part]:
     hole_parts = []
     hole_positions = get_case_bracket_holes()
     for h in hole_positions:
-        hole_parts.append(make_hole((h[0], h[1], 0)))
+        hole_parts.append(make_hole((h[0], h[1], 0), h[2]))
 
-    parts = parts + hole_parts
+    new_children = [part - hole_parts for part in parts]
 
-    return parts
+    return new_children
 
 def export_3mf_assembly(assembly: list[Part], filename: str) -> None:
     exporter = Mesher()
