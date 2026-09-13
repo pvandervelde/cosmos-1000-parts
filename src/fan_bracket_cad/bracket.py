@@ -42,7 +42,7 @@ internal_hole_fdm_correction = 0.1  # correction for FDM printing, in mm
 opening_width = 150.0        # total case cutout width (X)
 opening_height = 440.0       # case cutout height (Y)
 
-horizontal_margin = 13.0     # extra mounting strip left & right of the opening
+horizontal_margin = 12.0     # extra mounting strip left & right of the opening
 vertical_margin = 5.0        # Extra mounting strip above & below the fan
 bottom_margin = 33.0         # extra mounting strip above & below opening
 top_margin = 14.0            # extra mounting strip above & below opening
@@ -143,11 +143,11 @@ def get_case_bracket_holes() -> list[tuple[float, float, float]]:
     side_hole_1_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
     side_hole_1_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
 
-    side_hole_2_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
-    side_hole_2_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
+    side_hole_2_left = (-80.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
+    side_hole_2_right = (80.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
 
-    side_hole_3_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
-    side_hole_3_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
+    side_hole_3_left = (-80.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
+    side_hole_3_right = (80.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
 
     return [
         bottom_clip_left,
