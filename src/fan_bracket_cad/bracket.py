@@ -140,14 +140,14 @@ def get_case_bracket_holes() -> list[tuple[float, float, float]]:
     bottom_hole_left = (-38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0, 1.5)
     bottom_hole_right = (38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0, 1.5)
 
-    side_hole_1_left = (-85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
-    side_hole_1_right = (85.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
+    side_hole_1_left = (-84.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
+    side_hole_1_right = (84.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
 
-    side_hole_2_left = (-80.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
-    side_hole_2_right = (80.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
+    side_hole_2_left = (-78.0, -1.5 * bracket_height - bottom_bracket_height + 304.0, 1.5)
+    side_hole_2_right = (78.0, -1.5 * bracket_height - bottom_bracket_height + 304.0, 1.5)
 
-    side_hole_3_left = (-80.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
-    side_hole_3_right = (80.0, -1.5 * bracket_height - bottom_bracket_height + 430.0, 1.5)
+    side_hole_3_left = (-78.0, -1.5 * bracket_height - bottom_bracket_height + 428.0, 1.5)
+    side_hole_3_right = (78.0, -1.5 * bracket_height - bottom_bracket_height + 428.0, 1.5)
 
     return [
         bottom_clip_left,
