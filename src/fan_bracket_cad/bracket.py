@@ -46,7 +46,7 @@ horizontal_margin = 12.0     # extra mounting strip left & right of the opening
 vertical_margin = 5.0        # Extra mounting strip above & below the fan
 bottom_margin = 33.0         # extra mounting strip above & below opening
 top_margin = 14.0            # extra mounting strip above & below opening
-case_width = 210.0
+case_width = 207.0
 
 bottom_bracket_height = bottom_margin - vertical_margin
 
@@ -134,20 +134,20 @@ def make_bracket() -> Part:
     return bp.part
 
 def get_case_bracket_holes() -> list[tuple[float, float, float]]:
-    bottom_clip_left = (-37.0, -1.5 * bracket_height - bottom_bracket_height, 5.0)
-    bottom_clip_right = (37.0, -1.5 * bracket_height - bottom_bracket_height, 5.0)
+    bottom_clip_left = (-35.0, -1.5 * bracket_height - bottom_bracket_height, 5.0)
+    bottom_clip_right = (35.0, -1.5 * bracket_height - bottom_bracket_height, 5.0)
 
-    bottom_hole_left = (-38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0, 1.5)
-    bottom_hole_right = (38.0, -1.5 * bracket_height - bottom_bracket_height + 20.0, 1.5)
+    bottom_hole_left = (-38.0, -1.5 * bracket_height - bottom_bracket_height + 19.0, 1.5)
+    bottom_hole_right = (38.0, -1.5 * bracket_height - bottom_bracket_height + 19.0, 1.5)
 
     side_hole_1_left = (-84.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
     side_hole_1_right = (84.0, -1.5 * bracket_height - bottom_bracket_height + 236.0, 4.5)
 
-    side_hole_2_left = (-78.0, -1.5 * bracket_height - bottom_bracket_height + 304.0, 1.5)
-    side_hole_2_right = (78.0, -1.5 * bracket_height - bottom_bracket_height + 304.0, 1.5)
+    side_hole_2_left = (-78.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
+    side_hole_2_right = (78.0, -1.5 * bracket_height - bottom_bracket_height + 303.0, 1.5)
 
-    side_hole_3_left = (-78.0, -1.5 * bracket_height - bottom_bracket_height + 428.0, 1.5)
-    side_hole_3_right = (78.0, -1.5 * bracket_height - bottom_bracket_height + 428.0, 1.5)
+    side_hole_3_left = (-78.0, -1.5 * bracket_height - bottom_bracket_height + 429.0, 1.5)
+    side_hole_3_right = (78.0, -1.5 * bracket_height - bottom_bracket_height + 429.0, 1.5)
 
     return [
         bottom_clip_left,
