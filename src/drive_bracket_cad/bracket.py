@@ -226,12 +226,12 @@ def make_ssd_box() -> Part:
     return bp.part
 
 
-def make_assembly() -> Compound:
+def make_assembly() -> list[Part]:
     hdd_box = make_hdd_box()
     #ssd_box = make_ssd_box()
     # SSD box sits above HDD box with a gap between them
     #ssd_y = hdd_box_y / 2 + box_gap + ssd_box_y / 2
-    return Compound(children=[hdd_box])
+    return [hdd_box]
 
 
 def main() -> None:
